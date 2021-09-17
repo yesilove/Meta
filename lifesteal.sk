@@ -1,0 +1,229 @@
+command /redeem [<number>]:
+	trigger:
+		if arg-1 is less than 0:
+			message "&8[&cLife&4Steal&8]&f You can not specify a negative number."
+			stop
+		if arg-1 is not set:
+			if {%player%.hearts} is not set:
+				set {%player%.hearts} to 10
+			if {%player%.hearts} is not 0:
+				set {%player%.hearts} to {%player%.hearts} - 1
+				set max health of player to {%player%.hearts}
+				if {heartid} is not set:
+					set {heartid} to 1
+				set {heartid} to {heartid} + 1
+				give player glowing red dye named "&cHeart" with lore "&7Right click to add a heart" and  "&8ID: %{heartid}%"
+				message "&8[&cLife&4Steal&8]&f You have redeemed a heart."
+			else:
+				message "&8[&cLife&4Steal&8]&f You can not redeem any more hearts."
+		else:
+			if {%player%.hearts} is not set:
+				set {%player%.hearts} to 10
+			if {%player%.hearts} is not 0:
+				if arg-1 is more than {%player%.hearts}:
+					message "&8[&cLife&4Steal&8]&f You can not redeem any more hearts."
+					stop
+				set {%player%.hearts} to {%player%.hearts} - arg-1
+				set max health of player to {%player%.hearts}
+				if {heartid} is not set:
+					set {heartid} to 1
+				loop arg-1 times:
+					set {heartid} to {heartid} + 1
+					give player glowing red dye named "&cHeart" with lore "&7Right click to add a heart" and  "&8ID: %{heartid}%"
+				message "&8[&cLife&4Steal&8]&f You have redeemed %arg-1% hearts."
+			
+on right click:
+	if name of event-item is "&cHeart":
+		if name of player's offhand tool is "&cHeart":
+			stop
+		set {%player%.hearts} to {%player%.hearts} + 1
+		set max health of player to {%player%.hearts}
+		remove player's tool from player's inventory
+		message "&8[&cLife&4Steal&8]&f You have used &c1 &fphysical heart and now have &c%{%player%.hearts}%&f hearts."
+		
+on death:
+	if victim is a player:
+		if damager is a player:
+			if {%victim%.hearts} is not set:
+				set {%victim%.hearts} to 10
+			if {%damager%.hearts} is not set:
+				set {%victim%.hearts} to 10
+			if {%victim%.hearts} is not 0:
+				message "&8[&cLife&4Steal&8]&f You were killed by &c%damager%&f and lost &c1&f heart." to victim
+				message "&8[&cLife&4Steal&8]&f You have killed &c%victim%&f and gained &c1&f heart." to damager
+				set {%victim%.hearts} to {%victim%.hearts} - 1
+				set victim's max health to {%victim%.hearts}
+				set {%damager%.hearts} to {%damager%.hearts} + 1
+				set damager's max health to {%damager%.hearts}
+			else:
+				message "&8[&cLife&4Steal&8]&f You were killed by &c%damager%&f and lost &c0&f hearts." to victim
+				message "&8[&cLife&4Steal&8]&f You have killed &c%victim%&f and gained &c0&f hearts." to damager
+				
+command /lifesteal [<text>]:
+	aliases: /ls
+	trigger:
+		if arg-1 is not set:
+			message "&7&m---------------------------------------------------"
+			message "&c&nLife&4&nSteal&7:"
+			message ""
+			message "&fA &cLife&4Steal &fskript made by &cErn&f."
+			message "&fPlease install &cSKQuery&f and &cTuSke&f for the skript" 
+			message "&fto work correctly"
+			message "&fType &c/ls help&f for a list of admin commands"
+			message "&7&m---------------------------------------------------"
+		if arg-1 is "help":
+			message "&7&m---------------------------------------------------"
+			message "&4&nCommands&7:"
+			message ""
+			message "&c/redeem&7 - &fRedeem a heart"
+			message "&c/heartrecipe&7 - &fShow the recipe for crafting hearts"
+			message "&c/checkhearts&7 - &fCheck a player's hearts"
+			message "&c/lsmode&7 - &fChoose what happens players upon dying"
+			message "&c/lsrevive&7 - &fRevive people who are dead in spectator mode"
+			message "&c/sethearts&7 - &fSet hearts for a player"
+			message "&c/givehearts&7 - &fGive Physical hearts"
+			message "&7&m---------------------------------------------------"
+				
+command /sethearts [<offline player>] [<number>]:
+	permission: lifesteal.admin
+	permission message: &8[&cLife&4Steal&8]&c You do not have permission to use this command.
+	trigger:
+		if arg-1 is not set:
+			message "&8[&cLife&4Steal&8]&f You need to specify the player and value."
+			stop
+		if arg-2 is not set:
+			message "&8[&cLife&4Steal&8]&f You need to specify the value."
+			stop
+		set {%arg-1%.hearts} to arg-2
+		set arg-1's max health to arg-2
+		message "&8[&cLife&4Steal&8]&f Set &c%arg-1%&f's hearts to &c%arg-2%&f."
+		message "&8[&cLife&4Steal&8]&f Your hearts have been set to &c%arg-2%&f." to arg-1
+	
+command /givehearts [<number>]:
+	permission: lifesteal.admin
+	permission message: &8[&cLife&4Steal&8]&c You do not have permission to use this command.
+	trigger:
+		if arg-1 is not set:
+			message "&8[&cLife&4Steal&8]&f You need to specify a value."
+			stop
+		if {heartid} is not set:
+			set {heartid} to 1
+		loop arg-1 times:
+			set {heartid} to {heartid} + 1
+			give player glowing red dye named "&cHeart" with lore "&7Right click to add a heart" and  "&8ID: %{heartid}%"
+		message "&8[&cLife&4Steal&8]&f You have spawneed in &c%arg-1% &fphysical hearts."
+				
+on join:
+	if {%player%.hearts} is not set:
+		set {%player%.hearts} to 10
+	if player's max health is not {%player%.hearts}:
+		if {%player%.hearts} is 0:
+			if player's max health is 0.5:
+				stop
+		set player's max health to {%player%.hearts}
+		message "&8[&cLife&4Steal&8]&f Your hearts have been set to &c%{%player%.hearts}%&f."
+		
+on load:
+	register new shaped recipe for glowing red dye named "&cHeart" with lore "&7Right click to add a heart" and "&8ID:" using diamond, emerald block, diamond, emerald block, totem of undying, emerald block, diamond, emerald block, diamond
+	
+on craft:
+	if name of event-item is "&cHeart":
+		set {heartid} to {heartid} + 1
+		set line 2 of item's lore to "&8ID: %{heartid}%"
+
+command /heartrecipe:
+	trigger:
+		open virtual dropper inventory with size 3 named "&7Crafting Recipe:" to player
+		format slot 0 of player with diamond named "&bDiamond" to close
+		format slot 1 of player with emerald block named "&aBlock of Emerald" to close
+		format slot 2 of player with diamond named "&bDiamond" to close
+		format slot 4 of player with totem of undying to close
+		format slot 3 of player with emerald block named "&aBlock of Emerald" to close
+		format slot 5 of player with emerald block named "&aBlock of Emerald" to close
+		format slot 6 of player with diamond named "&bDiamond" to close
+		format slot 8 of player with diamond named "&bDiamond" to close
+		format slot 7 of player with emerald block named "&aBlock of Emerald" to close
+		
+command /lsmode [<text>]:
+	permission: lifesteal.admin
+	permission message: &8[&cLife&4Steal&8]&c You do not have permission to use this command.
+	trigger:
+		if {lsmode} is not set:
+			set {lsmode} to "normal"
+		if arg-1 is not set:
+			open chest with 3 rows named "&7Select a mode:" to player
+			format slot 10 of player with light gray wool named "&7Normal" with lore "&cNothing happens upon losing all of your hearts" to close then run [make player say "/lsmode normal"]
+			format slot 13 of player with orange wool named "&6Spectator" with lore "&cPlayers will permanently be put into" and  "&cspectator upon losing all their hearts" to close then run [make player say "/lsmode spectator"]
+			format slot 16 of player with red wool named "&4Ban" with lore "&cPlayers will be permanently" and  "&cbanned upon losing all their hearts" to close then run [make player say "/lsmode ban"]
+			format slot 26 of player with barrier named "&7Status" with lore "&fThe current mode is &c%{lsmode}%&f!" to close
+		if arg-1 is "normal":
+			set {lsmode} to "normal"
+			broadcast "&8[&cLife&4Steal&8]&f The mode has been set to &cnormal&f."
+		if arg-1 is "spectator":
+			set {lsmode} to "spectator"
+			broadcast "&8[&cLife&4Steal&8]&f The mode has been set to &cspectator&f."
+		if arg-1 is "ban":
+			set {lsmode} to "ban"
+			broadcast "&8[&cLife&4Steal&8]&f The mode has been set to &cban&f."
+			
+on death:
+	if {lsmode} is "spectator":
+		if victim is a player:
+			if damager is a player:
+				if victim's max health is 0.5:
+					set {%victim%.out} to true
+					set gamemode of victim to spectator
+					strike lightning effect at victim
+					broadcast "&8[&cLife&4Steal&8]&c %damager%&f has eliminated&c %victim%&f."
+	if {lsmode} is "ban":
+		if victim is a player:
+			if damager is a player:
+				if victim's max health is 0.5:
+					broadcast "&8[&cLife&4Steal&8]&c %damager%&f has eliminated&c %victim%&f."
+					strike lightning effect at victim
+					make console execute command "/ban %victim% Eliminated"
+					
+				
+on join:
+	if {%player%.out} is not set:
+		set {%player%.out} to false
+	if {%player%.out} is true:
+		set player's gamemode to spectator
+		message "&8[&cLife&4Steal&8]&f You are &cEliminated&f and are a spectator."
+	if {%player%.out} is false:
+		if player's gamemode is spectator:
+			set player's gamemode to survival
+			message "&8[&cLife&4Steal&8]&f You have been &crevived&f."
+		
+command /lsrevive <offline player>:
+	permission: lifesteal.admin
+	permission message: &8[&cLife&4Steal&8]&c You do not have permission to use this command.
+	trigger:
+		if {lsmode} is not "spectator":
+			message "&8[&cLife&4Steal&8]&c Spectator mode has to be enabled."
+			stop
+		if {%arg-1%.out} is false:
+			message "&8[&cLife&4Steal&8]&c The player is still alive."
+			stop
+		if {%arg-1%.out} is not set:
+			set {%arg-1%.out} to false
+			message "&8[&cLife&4Steal&8]&c The player is still alive."
+			stop
+		set {%arg-1%.out} to false
+		set arg-1's gamemode to survival
+		set {%arg-1%.hearts} to 10
+		set arg-1's max health to 10
+		message "&8[&cLife&4Steal&8]&f You revived &c%arg-1%&f."
+		message "&8[&cLife&4Steal&8]&f You have been &crevived&f." to arg-1
+		
+command /checkhearts [<offline player>]:
+	permission: lifesteal.admin
+	permission message: &8[&cLife&4Steal&8]&c You do not have permission to use this command.
+	trigger:
+		if arg-1 is not set:
+			message "&8[&cLife&4Steal&8]&f You need to specify a player."
+			stop
+		set {_hearts2} to {%arg-1%.hearts} * 2
+		if {%arg-1%.hearts} is 0:
+			set {_hearts2} to 1
+		message "&8[&cLife&4Steal&8]&c %arg-1%&f has &c%{%arg-1%.hearts}% &4Hearts&f or &c%{_hearts2}% &4HP&f."
